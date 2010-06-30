@@ -13,11 +13,12 @@ import edu.berkeley.gamesman.api.ApiServletModule;
  * RESTful resource providers independently of the server back-end from which
  * game information is queried.
  * 
- * @author ide
+ * @author James Ide
  */
 public class GamesmanGuiceServletContextListener extends
         GuiceServletContextListener {
     
+    @Override
     protected Injector getInjector() {
         return Guice.createInjector(new ApiServletModule());
     }

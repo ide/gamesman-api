@@ -7,7 +7,7 @@ import com.sun.jersey.guice.spi.container.servlet.GuiceContainer;
  * A Guice module that registers the resource classes used to handle requests
  * to the Gamesman API.
  * 
- * @author ide
+ * @author James Ide
  */
 public class ApiServletModule extends ServletModule {
     
