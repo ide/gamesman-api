@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en-US">
+  <head>
+    <title>Documentation - Gamesman Web</title>
+    <link rel="stylesheet" href="../gc.css" type="text/css">
+    <style type="text/css">
+      h1 { margin: 1em 0 0; text-align: center }
+      h1, h2, h3, h4 { margin-bottom: 0 }
+      h1 + *, h2 + *, h3 + *, h4 + * { margin-top : 0.25em }
+      h3 { border-bottom: 1px dotted }
+      table { border-collapse: collapse }
+      th, td { padding: 0.15em 0.5em; border: 1px solid }
+    </style>
+  </head>
+  <body>
+    <h1><img src="documentation-title.png" alt="Gamesman Web Documentation"></h1>
+    <p>
+      <strong>Note:</strong> This documentation is for Gamesman Web, not the Liberation API.
+    </p>
+    <h2><abbr title="REpresentational State Transfer">REST</abbr> <abbr title="Application Programming Interface">API</abbr></h2>
+    <p>
+      The Gamesman Web API is a small interface between the front-end user interfaces and the back-end move-value databases. It comprises a handful of stateless functions, cleanly separating the front-end from the back-end. At the same time, the API is quite thin, and allows for game-specific arguments.
+    </p>
+    <p>
+      Invoking a Gamesman Web function is the same as issuing an HTTP GET request. We use <a href="http://www.w3.org/DesignIssues/MatrixURIs.html">matrix URIs</a> instead of query parameters due to their flexibility and simplicity to both emit and parse. <strong>The base URI for all API calls is <code>http://nyc.cs.berkeley.edu:8080/gcweb/service/gamesman/puzzles/<var>internal-game-name</var>/</code>.</strong> (Why do we have <code>puzzles</code> in there? I don't know. We should probably remove that.) <code><var>internal-game-name</var></code> is the internal name of the game you'd like to play. There's no table of these right now, but the person writing the solver and registering the game with Gamesman Web will know what it is. It's never an arbitrary string, though; for example, Connect Four's internal name is <code>connect4</code> and Triple Cross's is <code>tcross</code>.
+    </p>
+    <p>
+      An example of an API call is: <code>http://nyc.cs.berkeley.edu:8080/gcweb/service/gamesman/puzzles/connect4/getMoveValue;board=%20%20;width=1;height=2;pieces=1</code>, which asks for the value of the empty board (denoted by two spaces, URI-encoded as <code>%20%20</code>) that has a width of one and a height of two in a game of Connect Four that requires only one piece in a row to win (Connect One? Exciting, I know.). 
+    </p>
+    <p>
+      Return values are encoded using <a href="http://www.json.org/"><abbr title="JavaScript Object Notation">JSON</abbr></a>, a light, readable, and easy-to-parse format. It's less verbose than <abbr title="eXtensible Markup Language">XML</abbr> and there are just as many parsers for it. In fact, JSON is simply a subset of JavaScript code, which means that any JavaScript interpreter can parse a JSON string into a JavaScript object for you. (Python interpreters also do a reasonable job, and there's the <a href="http://docs.python.org/library/json.html"><code>json</code></a> module as well.) All JSON responses include a property named <code>status</code>, whose value should either be <code>ok</code> or <code>error</code>. This lets you immediately know if something went wrong; you might find a <code>message</code> property that explains the error. When successful, there's another top-level property called <code>response</code>, which contains the return value of the function you called. The documentation on function return values talks within the context of this <code>response</code> field unless noted otherwise.
+    </p>
+    <p>
+      An example of a JSON response to a successful <code>getNextMoveValues</code> API call is:
+    </p>
+    <pre>
+{"status": "ok",
+ "response": [
+   {"board": "X        ", "remoteness": 9, "value": "tie", "move": "0"},
+   {"board": " X       ", "remoteness": 9, "value": "tie", "move": "1"},
+   {"board": "  X      ", "remoteness": 9, "value": "tie", "move": "2"}
+]}</pre>
+    <p>
+      This is the response to a request for the move-values of the initial board's children in a game of three-by-three Connect Four. As you can see, the response is easy to read, provided you understand the <a href="http://nyc.cs.berkeley.edu/wiki/index.php?title=Glossary">terminology</a>.
+    </p>
+    <h3 id="getMoveValue"><code>getMoveValue</code></h3>
+    <p>
+      Retrieves the value of a specified board. This function is usually called at the beginning of a game to learn about the initial board.
+    </p>
+    <h4>Parameters</h4>
+    <table>
+      <tr><th>Name</th><th>Description</th><th>Default if Unspecified</th></tr>
+      <tr>
+        <td>board</td>
+        <td>A string representing the current board. This varies from game to game, and you'll have to speak with the game implementor to find out the format since they'll eventually receive this string and need to parse it.</td>
+        <td>Empty string (this probably isn't very useful)</td>
+      </tr>
+      <tr>
+        <td>width</td>
+        <td>The width of the board. Defaults to zero if left unspecified.</td>
+        <td>Zero</td>
+      </tr>
+      <tr>
+        <td>height</td>
+        <td>The height of the board.</td>
+        <td>Zero</td>
+      </tr>
+      <tr>
+        <td><var>miscellaneous</var></td>
+        <td>You can include as many extra arguments as you'd like. For example, to specify the number of pieces in a row needed to win in Connect Four, you might include <code>pieces=4</code>.</td>
+        <td>Empty string</td>
+      </tr>
+    </table>
+    <h4>Return Value</h4>
+    <p>
+      The return value is a JSON object with information about the specified board.
+    </p>
+    <table>
+      <tr><th>Name</th><th>Description</th></tr>
+      <tr>
+        <td>board</td>
+        <td>The string representation of the board whose value is described in the response. This is the same string as the one in the request.</td>
+      </tr>
+      <tr>
+        <td>value</td>
+        <td>Whether the board is a <code>win</code>, <code>lose</code>, <code>tie</code>, or <code>draw</code> for the current player. This field is absent if move-values are unavailable.
+        </td>
+      </tr>
+      <tr>
+        <td>remoteness</td>
+        <td>The fewest number of moves it will take to reach a primitive board with the specified value, assuming optimal play. (In the case of a losing position, this is the greatest number of moves until the current player finally loses.)</td>
+      </tr>
+    </table>
+    
+    <h3 id="getNextMoveValues"><code>getNextMoveValues</code></h3>
+    <p>
+      Retrieves the values of all children of the specified board, almost as if <a href="#getMoveValue"><code>getMoveValue</code></a> were called for each of the children.
+    </p>
+    <h4>Parameters</h4>
+    <p>
+      Same as those for <code>getMoveValue</code>.
+    </p>
+    <h4>Return Value</h4>
+    <p>
+      The return value is a list of JSON objects, each similar to the result of a call to <code>getMoveValue</code>. However, these move-values include extra information.
+    </p>
+    <table>
+      <tr><th>Name</th><th>Description</th></tr>
+      <tr>
+        <td>move</td>
+        <td>The string representation of the move that will lead from the parent board (the board specified in the request) to the child board (the board included in the response). This is highly game-specific and dependent on the back-end. For example, a move in Connect Four is represented as the number of the column in which the piece was dropped.</td>
+      </tr>
+    </table>
+    <p>
+    </p>
+  </body>
+</html>

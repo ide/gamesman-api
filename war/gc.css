@@ -1,0 +1,9 @@
+html {
+    color: #fff; background: #226;
+    font-family: Helvetica, Arial, serif
+}
+body { width: 980px; margin: 0 auto }
+a { color: #bbf }
+a:visited { color: #bbb }
+a:hover { color: #fc7 }
+a:active { color: #fc3 }
