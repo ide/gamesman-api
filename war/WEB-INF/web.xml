@@ -4,8 +4,8 @@
          xmlns:web="http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
          xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
          id="gamesman-web" version="2.5">
-  <display-name>Liberation</display-name>
-  <description>fluffy bunny</description>
+  <display-name>Gamesman API</display-name>
+  <description>The Web API that exposes perfect-game information computed by the Gamesman solvers.</description>
   <welcome-file-list>
     <welcome-file>index.html</welcome-file>
     <welcome-file>index.jsp</welcome-file>

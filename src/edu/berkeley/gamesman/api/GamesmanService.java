@@ -1,4 +1,4 @@
- package edu.berkeley.gamesman.api;
+package edu.berkeley.gamesman.api;
 
 import java.util.List;
 
@@ -16,17 +16,20 @@ import com.google.inject.Inject;
 @Path("{game}")
 @Produces("text/plain")
 public class GamesmanService {
-    
+
     @PathParam("game")
     private String game;
-    
+
     @PathParam("game")
     private PathSegment gameSegment;
-    
+
+    private GamesmanApi api;
+
     @Inject
-    public GamesmanService() {
+    protected GamesmanService(GamesmanApi api) {
+        this.api = api;
     }
-    
+
     @GET
     @Path("move-value")
     public String getMoveValue(@Context UriInfo info) {
@@ -34,11 +37,11 @@ public class GamesmanService {
             getMatrixParametersForSegment("move-value", info);
         return boardParameters.toString();
     }
-    
+
     /**
      * Extracts the matrix parameters from the specified URI path segment.
      * Unfortunately, it is not possible to use {@code @PathParam} to extract
-     * the path segment of an unnamed {@code @Path} (i.e., a {@code @Path}
+     * the path segment of an unnamed {@code @Path} (that is, a {@code @Path}
      * whose value is constant, not a variable).
      * <p>
      * If multiple path segments share the same value, it is not defined which
@@ -49,7 +52,7 @@ public class GamesmanService {
      * @throws  MissingPathSegmentException if there is no segment with the
      *          specified path in the given URI
      */
-    protected MultivaluedMap<String, String> getMatrixParametersForSegment(
+    private MultivaluedMap<String, String> getMatrixParametersForSegment(
             String path, UriInfo info) {
         // Search through each path segment in the URI for the specified one.
         List<PathSegment> pathSegments = info.getPathSegments();
@@ -58,21 +61,25 @@ public class GamesmanService {
                 return segment.getMatrixParameters();
             }
         }
-        
+
         String error = "no path segment for \"%s\" found in URI \"%s\"";
         error = String.format(error, path, info.getPath());
         throw new MissingPathSegmentException(error);
     }
-    
+
     protected MultivaluedMap<String, String> getGameParameters() {
         return getGameSegment().getMatrixParameters();
     }
-    
-    public String getGame() {
+
+    protected String getGame() {
         return game;
     }
 
-    public PathSegment getGameSegment() {
+    protected PathSegment getGameSegment() {
         return gameSegment;
+    }
+
+    protected GamesmanApi getApi() {
+        return api;
     }
 }

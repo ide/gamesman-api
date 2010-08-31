@@ -6,7 +6,7 @@ import javax.ws.rs.Path;
 
 @Path("authenticate")
 public class AuthenticationService {
-    
+
     @GET
     public String authenticate(@MatrixParam("username") String username,
                                @MatrixParam("password") String password) {
