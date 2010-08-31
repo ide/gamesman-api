@@ -17,6 +17,7 @@ public class ApiServletModule extends ServletModule {
     @Override
     protected void configureServlets() {
         bind(GamesmanApi.class).to(MockGamesmanApi.class);
+
         bind(GamesmanService.class);
         bind(AuthenticationService.class);
 

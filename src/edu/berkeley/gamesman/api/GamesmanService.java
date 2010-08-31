@@ -23,10 +23,10 @@ public class GamesmanService {
     @PathParam("game")
     private PathSegment gameSegment;
 
-    private GamesmanApi api;
+    private final GamesmanApi api;
 
     @Inject
-    protected GamesmanService(GamesmanApi api) {
+    public GamesmanService(GamesmanApi api) {
         this.api = api;
     }
 
