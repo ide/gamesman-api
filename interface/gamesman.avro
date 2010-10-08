@@ -1,7 +1,7 @@
 /**
  * An example protocol in GenAvro
  */
-@namespace("org.apache.avro.test")
+@namespace("edu.berkeley.gamesman.avro")
 protocol Simple {
   record TestRecord {
     @order("ignore")

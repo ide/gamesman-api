@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project basedir="." default="build" name="GamesmanAPI">
+<project basedir="." default="build" name="Gamesman-API">
     <property environment="env"/>
     <property name="debuglevel" value="source,lines,vars"/>
     <property name="target" value="1.6"/>
@@ -70,7 +70,7 @@
     <target depends="build-subprojects,build-project" name="build"/>
     <target name="build-subprojects"/>
     <target depends="init,avro-java" name="build-project">
-        <echo message="${ant.project.name}: ${ant.file}"/>
+        <!--echo message="${ant.project.name}: ${ant.file}"/-->
         <javac debug="true" debuglevel="${debuglevel}" destdir="${gapi.bin}" source="${source}" target="${target}">
             <src path="${gapi.test}"/>
             <src path="${gapi.gensrc}"/>
