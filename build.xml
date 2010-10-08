@@ -4,30 +4,27 @@
     <property name="debuglevel" value="source,lines,vars"/>
     <property name="target" value="1.6"/>
     <property name="source" value="1.6"/>
-    <property name="gapi.src" location="src"/>
-    <property name="gapi.test" location="test"/>
-    <property name="gapi.interface" location="interface"/>
-    <property name="gapi.geninterface" location="gensrc/avro"/>
-    <property name="gapi.gensrc" location="gensrc/java"/>
+    <property name="gapi.src" location="src/java"/>
+    <property name="gapi.test" location="src/test-java"/>
+    <property name="gapi.interface" location="src/avro"/>
+    <property name="gapi.geninterface" location="src/gen-json"/>
+    <property name="gapi.gensrc" location="src/gen-java"/>
     <property name="gapi.war" location="war"/>
     <property name="gapi.out" location="${gapi.war}/WEB-INF/classes"/>
     <property name="gapi.bin" location="${gapi.out}"/>
     <property name="gapi.lib" location="${gapi.war}/WEB-INF/lib"/>
     <path id="gapi.classpath">
         <pathelement location="${gapi.bin}"/>
+    	<pathelement location="avro-tools-1.4.0.jar"/>
         <pathelement location="${gapi.lib}/aopalliance.jar"/>
         <pathelement location="${gapi.lib}/asm-3.1.jar"/>
-        <pathelement location="${gapi.lib}/avro-1.3.3.jar"/>
+        <pathelement location="${gapi.lib}/avro-1.4.0.jar"/>
         <pathelement location="${gapi.lib}/guice-2.0.jar"/>
         <pathelement location="${gapi.lib}/guice-servlet-2.0.jar"/>
         <pathelement location="${gapi.lib}/jersey-core-1.2.jar"/>
         <pathelement location="${gapi.lib}/jersey-guice-1.2.jar"/>
         <pathelement location="${gapi.lib}/jersey-server-1.2.jar"/>
         <pathelement location="${gapi.lib}/jsr311-api-1.1.jar"/>
-        <pathelement location="avro-1.3.3-javadoc.jar"/>
-        <pathelement location="avro-tools-1.3.3.jar"/>
-        <pathelement location="guice-javadoc-2.0.jar"/>
-        <pathelement location="jsr311-javadoc-1.1.jar"/>
     </path>
     <target name="init">
         <mkdir dir="${gapi.out}"/>
@@ -45,7 +42,7 @@
             <arg value="-cp"/>
             <arg pathref="gapi.classpath"/>
             <arg value="org.apache.avro.tool.Main"/>
-            <arg value="genavro"/>
+            <arg value="idl"/>
             <srcfile/>
             <targetfile/>
 
@@ -56,7 +53,7 @@
     <target name="avro-java" depends="init,gen-avro">
         <apply executable="java" failonerror="true">
             <arg value="-cp"/>
-            <arg pathref="gapi.classpath"/>
+        	<arg pathref="gapi.classpath"/>
             <arg value="org.apache.avro.tool.Main"/>
             <arg value="compile"/>
             <arg value="protocol"/>

@@ -1,0 +1,9 @@
+
+@namespace("edu.berkeley.gamesman.avro")
+protocol GamesmanProvider {
+  record TestRecord {
+    @order("ignore")
+    string key;
+    string value;
+  }
+}

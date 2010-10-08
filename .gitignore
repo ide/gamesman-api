@@ -1,5 +1,6 @@
-/gensrc/
-/war/WEB-INF/classes/
+/.ssh
+/src/gen-*
+/war/WEB-INF/classes
 /war/WEB-INF/lib/appengine-*.jar
 /war/WEB-INF/lib/datanucleus-*.jar
 /war/WEB-INF/lib/geronimo-*.jar

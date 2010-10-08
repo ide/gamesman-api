@@ -1,0 +1,20 @@
+{
+  "protocol" : "Simple",
+  "namespace" : "edu.berkeley.gamesman.avro",
+  "types" : [ {
+    "type" : "record",
+    "name" : "TestRecord",
+    "fields" : [ {
+      "name" : "key",
+      "type" : {
+        "type" : "string",
+        "order" : "ignore"
+      }
+    }, {
+      "name" : "value",
+      "type" : "string"
+    } ]
+  } ],
+  "messages" : {
+  }
+}
