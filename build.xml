@@ -1,1 +1,95 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<project basedir="." default="build" name="GamesmanAPI">
+    <property environment="env"/>
+    <property name="debuglevel" value="source,lines,vars"/>
+    <property name="target" value="1.6"/>
+    <property name="source" value="1.6"/>
+    <property name="gapi.src" location="src"/>
+    <property name="gapi.test" location="test"/>
+    <property name="gapi.interface" location="interface"/>
+    <property name="gapi.geninterface" location="gensrc/avro"/>
+    <property name="gapi.gensrc" location="gensrc/java"/>
+    <property name="gapi.war" location="war"/>
+    <property name="gapi.out" location="${gapi.war}/WEB-INF/classes"/>
+    <property name="gapi.bin" location="${gapi.out}"/>
+    <property name="gapi.lib" location="${gapi.war}/WEB-INF/lib"/>
+    <path id="gapi.classpath">
+        <pathelement location="${gapi.bin}"/>
+        <pathelement location="${gapi.lib}/aopalliance.jar"/>
+        <pathelement location="${gapi.lib}/asm-3.1.jar"/>
+        <pathelement location="${gapi.lib}/avro-1.3.3.jar"/>
+        <pathelement location="${gapi.lib}/guice-2.0.jar"/>
+        <pathelement location="${gapi.lib}/guice-servlet-2.0.jar"/>
+        <pathelement location="${gapi.lib}/jersey-core-1.2.jar"/>
+        <pathelement location="${gapi.lib}/jersey-guice-1.2.jar"/>
+        <pathelement location="${gapi.lib}/jersey-server-1.2.jar"/>
+        <pathelement location="${gapi.lib}/jsr311-api-1.1.jar"/>
+        <pathelement location="avro-1.3.3-javadoc.jar"/>
+        <pathelement location="avro-tools-1.3.3.jar"/>
+        <pathelement location="guice-javadoc-2.0.jar"/>
+        <pathelement location="jsr311-javadoc-1.1.jar"/>
+    </path>
+    <target name="init">
+        <mkdir dir="${gapi.out}"/>
+        <mkdir dir="${gapi.gensrc}"/>
+        <mkdir dir="${gapi.geninterface}"/>
+    </target>
+    <target name="clean">
+        <delete dir="${gapi.out}"/>
+        <delete file="${gapi.interface}/*.json"/>
+        <delete dir="${gapi.geninterface}"/>
+        <delete dir="${gapi.gensrc}"/>
+    </target>
+    <target name="gen-avro" depends="init">
+        <apply executable="java" dest="${gapi.geninterface}" failonerror="true">
+            <arg value="-cp"/>
+            <arg pathref="gapi.classpath"/>
+            <arg value="org.apache.avro.tool.Main"/>
+            <arg value="genavro"/>
+            <srcfile/>
+            <targetfile/>
+
+            <fileset dir="${gapi.interface}" includes="*.avro"/>
+            <mapper from="*.avro" to="*.json" type="glob"/>
+        </apply>
+    </target>
+    <target name="avro-java" depends="init,gen-avro">
+        <apply executable="java" failonerror="true">
+            <arg value="-cp"/>
+            <arg pathref="gapi.classpath"/>
+            <arg value="org.apache.avro.tool.Main"/>
+            <arg value="compile"/>
+            <arg value="protocol"/>
+            <srcfile/>
+            <arg value="${gapi.gensrc}"/>
+
+            <fileset dir="${gapi.geninterface}" includes="*.json"/>
+        </apply>
+    </target>
+    <target depends="clean" name="cleanall"/>
+    <target depends="build-subprojects,build-project" name="build"/>
+    <target name="build-subprojects"/>
+    <target depends="init,avro-java" name="build-project">
+        <echo message="${ant.project.name}: ${ant.file}"/>
+        <javac debug="true" debuglevel="${debuglevel}" destdir="${gapi.bin}" source="${source}" target="${target}">
+            <src path="${gapi.test}"/>
+            <src path="${gapi.gensrc}"/>
+            <src path="${gapi.src}"/>
+            <classpath refid="gapi.classpath"/>
+        </javac>
+    </target>
+    <target name="build-refprojects"/>
+    <target name="init-eclipse-compiler">
+        <copy todir="${ant.library.dir}">
+            <fileset dir="${ECLIPSE_HOME}/plugins" includes="org.eclipse.jdt.core_*.jar"/>
+        </copy>
+        <unzip dest="${ant.library.dir}">
+            <patternset includes="jdtCompilerAdapter.jar"/>
+            <fileset dir="${ECLIPSE_HOME}/plugins" includes="org.eclipse.jdt.core_*.jar"/>
+        </unzip>
+    </target>
+    <target name="build-eclipse-compiler">
+        <property name="build.compiler" value="org.eclipse.jdt.core.JDTCompilerAdapter"/>
+        <antcall target="build"/>
+    </target>
+</project>

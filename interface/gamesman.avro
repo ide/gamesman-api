@@ -1,0 +1,11 @@
+/**
+ * An example protocol in GenAvro
+ */
+@namespace("org.apache.avro.test")
+protocol Simple {
+  record TestRecord {
+    @order("ignore")
+    string key;
+    string value;
+  }
+}

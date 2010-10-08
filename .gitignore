@@ -1,3 +1,4 @@
+/gensrc/
 /war/WEB-INF/classes/
 /war/WEB-INF/lib/appengine-*.jar
 /war/WEB-INF/lib/datanucleus-*.jar
