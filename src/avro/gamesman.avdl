@@ -1,0 +1,39 @@
+/**
+ * The interface for a back end that provides Gamesman functionality for a set
+ * of games.
+ */
+@namespace("edu.berkeley.gamesman.avro")
+protocol GamesmanProvider {
+
+  /**
+   * The set of values that can apply to a board, from the current player's
+   * perspective. Null may be used to represent unknown board values.
+   */
+  enum Value { WIN, LOSE, TIE, DRAW }
+
+  /**
+   * The set of fields that a move-value object can contain. This object allows
+   * database providers to describe which fields they support for a given game
+   * and variant. In addition, clients may use this object to hint at which
+   * fields they want from the server.
+   */
+  record Fields {
+    boolean move = true;
+    boolean value = false;
+    boolean remoteness = false;
+    boolean winBy = false;
+    boolean mex = false;
+  }
+
+  record MoveValue {
+    string move = null;
+    Value value = null;
+    int remoteness = null;
+    float winBy = null;
+    int mex = null;
+  }
+
+  map<MoveValue> getMoveValues(string game, map<string> variant, array<string> boards, Fields fields);
+
+  map<MoveValue> getNextMoveValues(string game, map<string> variant, string board, Fields fields);
+}

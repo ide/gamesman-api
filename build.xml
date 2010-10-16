@@ -33,7 +33,7 @@
     </target>
     <target name="clean">
         <delete dir="${gapi.out}"/>
-        <delete file="${gapi.interface}/*.json"/>
+        <delete file="${gapi.interface}/*.avpr"/>
         <delete dir="${gapi.geninterface}"/>
         <delete dir="${gapi.gensrc}"/>
     </target>
@@ -46,8 +46,8 @@
             <srcfile/>
             <targetfile/>
 
-            <fileset dir="${gapi.interface}" includes="*.avro"/>
-            <mapper from="*.avro" to="*.json" type="glob"/>
+            <fileset dir="${gapi.interface}" includes="*.avdl"/>
+            <mapper from="*.avdl" to="*.avpr" type="glob"/>
         </apply>
     </target>
     <target name="avro-java" depends="init,gen-avro">
@@ -60,7 +60,7 @@
             <srcfile/>
             <arg value="${gapi.gensrc}"/>
 
-            <fileset dir="${gapi.geninterface}" includes="*.json"/>
+            <fileset dir="${gapi.geninterface}" includes="*.avpr"/>
         </apply>
     </target>
     <target depends="clean" name="cleanall"/>
