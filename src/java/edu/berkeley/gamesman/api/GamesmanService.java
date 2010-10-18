@@ -31,8 +31,8 @@ public class GamesmanService {
     }
 
     @GET
-    @Path("move-value")
-    public String getMoveValue(@Context UriInfo info) {
+    @Path("position-value")
+    public String getPositionValue(@Context UriInfo info) {
         MultivaluedMap<String, String> boardParameters =
             getMatrixParametersForSegment("move-value", info);
         return boardParameters.toString();
@@ -52,7 +52,7 @@ public class GamesmanService {
      * @throws  MissingPathSegmentException if there is no segment with the
      *          specified path in the given URI
      */
-    private MultivaluedMap<String, String> getMatrixParametersForSegment(
+    private static MultivaluedMap<String, String> getMatrixParametersForSegment(
             String path, UriInfo info) {
         // Search through each path segment in the URI for the specified one.
         List<PathSegment> pathSegments = info.getPathSegments();

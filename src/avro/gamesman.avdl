@@ -10,7 +10,7 @@ protocol GamesmanProvider {
    * perspective. Null may be used to represent unknown board values.
    */
   enum Value { WIN, LOSE, TIE, DRAW }
-
+  
   /**
    * The set of fields that a move-value object can contain. This object allows
    * database providers to describe which fields they support for a given game
@@ -25,15 +25,73 @@ protocol GamesmanProvider {
     boolean mex = false;
   }
 
-  record MoveValue {
-    string move = null;
-    Value value = null;
-    int remoteness = null;
-    float winBy = null;
-    int mex = null;
+  record PositionValue {
+    union {null, Value} value;
+    union {null, int} remoteness;
+    union {null, float} winBy;
+    union {null, int} mex;
   }
 
-  map<MoveValue> getMoveValues(string game, map<string> variant, array<string> boards, Fields fields);
+  record MoveValue {
+    union {null, Value} value;
+    string position;
+    PositionValue positionValue;
+  }
 
-  map<MoveValue> getNextMoveValues(string game, map<string> variant, string board, Fields fields);
+  /**
+   * Returns a mapping from games to lists of supported variants for each game.
+   * Each variant is represented as a mapping from property names to values.
+   * To save memory, an implementation may choose only to include variants for
+   * games that are solved. However, since such an implementation may still be
+   * able to compute moves for a game, it is valid to include a mapping from
+   * a game name to an empty list (that is, no variants), to indicate that the
+   * game is supported to a limited degree.
+   */
+  map<array<map<string>>> getSupportedGames();
+
+  /**
+   * Returns a mapping with one key-value pair that maps the initial position
+   * for the given game variant to its position-value. This method returns the
+   * same result as if {@link #getPositionValues} were called with only the
+   * initial position.
+   */
+  map<PositionValue> getInitialPositionValue(string game, map<string> variant,
+                                             Fields fields);
+
+  /**
+   * Returns a mapping from the given positions to their respective values.
+   * The specified set of fields is used to hint at which fields of the
+   * position-value objects are relevant to the client.
+   */
+  map<PositionValue> getPositionValues(string game, map<string> variant,
+                                       array<string> positions, Fields fields);
+
+  /**
+   * Returns a mapping from moves to their respective values. Each move-value
+   * object also contains the position reached by taking the respective move,
+   * as well as the position-value of that destination position. The
+   * move-values are from the perspective of the current player who makes the
+   * associated move, while each position-value is from the perspective of
+   * the player whose turn it is for the respective position. This last point'
+   * is subtle.
+   * <p>
+   * For most games in which players alternate turns, the move-value will be
+   * the opposite of the destination position-value; for example, if player X
+   * makes a winning move, then player O is given a losing destination
+   * position. However, some games may allow players to take consecutive turns
+   * (an extreme example is a puzzle, in which only one player ever moves).
+   * Therefore, if player X makes a winning move and player X remains the
+   * current player for the destination position, then the value of that
+   * position will be a win as well.
+   */
+  map<MoveValue> getMoveValues(string game, map<string> variant,
+                               string position, Fields fields);
+
+  /**
+   * Issues a request to solve the specified game variant. The solver may
+   * contact the requestor at the given pingback URI when the solve is complete
+   * or if an error occurred.
+   * TODO: Specify URI query parameters for denoting successes, errors, etc...
+   */
+  void solve(string game, map<string> variant, string pingback) oneway;
 }
