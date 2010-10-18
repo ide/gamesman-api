@@ -9,38 +9,54 @@ protocol GamesmanProvider {
    * The set of values that can apply to a board, from the current player's
    * perspective. Null may be used to represent unknown board values.
    */
-  enum Value { WIN, LOSE, TIE, DRAW }
-  
+  enum Value {
+    /** Guaranteed win with optimal play even against a perfect opponent. */
+    WIN,
+    /** Guaranteed lose if the opponent plays perfectly. */
+    LOSE,
+    /** At best, a tie game against a perfect opponent. */
+    TIE,
+    /** At best, an infinite loop against a perfect opponent. */
+    DRAW
+  }
+
   /**
-   * The set of fields that a move-value object can contain. This object allows
-   * database providers to describe which fields they support for a given game
-   * and variant. In addition, clients may use this object to hint at which
-   * fields they want from the server.
+   * The set of fields that a position-value object can contain. This object
+   * allows database providers to describe which fields they support for a
+   * given game variant. In addition, clients may use this object to hint at
+   * which fields they want from the server.
    */
   record Fields {
-    boolean move = true;
     boolean value = false;
     boolean remoteness = false;
     boolean winBy = false;
     boolean mex = false;
   }
 
+  /**
+   * The value of a position in a game. A position encodes a state of the game,
+   * which includes the board, whose turn it is, and other information required
+   * to adequately describe the game state (for example, some games have phases
+   * that need to be specified). Note that many games, including Tic-Tac-Toe,
+   * implicitly encode the current player in their boards.
+   */
   record PositionValue {
-    union {null, Value} value;
-    union {null, int} remoteness;
-    union {null, float} winBy;
-    union {null, int} mex;
-  }
-
-  record MoveValue {
-    union {null, Value} value;
+    /** The position described by this position-value. */
     string position;
-    PositionValue positionValue;
+    /** The win/lose/tie/draw value of the position. */
+    union {null, Value} value;
+    /** The fewest moves required to reach a primitive with this value. */
+    union {null, int} remoteness;
+    /** The maximum score by which the current player can win. */
+    union {null, float} winBy;
+    /** The mex of this position. */
+    union {null, int} mex;
   }
 
   /**
    * Returns a mapping from games to lists of supported variants for each game.
    * Each variant is represented as a mapping from property names to values.
+   * <p>
    * To save memory, an implementation may choose only to include variants for
    * games that are solved. However, since such an implementation may still be
    * able to compute moves for a game, it is valid to include a mapping from
@@ -50,13 +66,11 @@ protocol GamesmanProvider {
   map<array<map<string>>> getSupportedGames();
 
   /**
-   * Returns a mapping with one key-value pair that maps the initial position
-   * for the given game variant to its position-value. This method returns the
-   * same result as if {@link #getPositionValues} were called with only the
-   * initial position.
+   * Returns the position-value of the initial position for the given game
+   * variant.
    */
-  map<PositionValue> getInitialPositionValue(string game, map<string> variant,
-                                             Fields fields);
+  PositionValue getInitialPositionValue(string game, map<string> variant,
+                                        Fields fields);
 
   /**
    * Returns a mapping from the given positions to their respective values.
@@ -67,13 +81,11 @@ protocol GamesmanProvider {
                                        array<string> positions, Fields fields);
 
   /**
-   * Returns a mapping from moves to their respective values. Each move-value
-   * object also contains the position reached by taking the respective move,
-   * as well as the position-value of that destination position. The
-   * move-values are from the perspective of the current player who makes the
-   * associated move, while each position-value is from the perspective of
-   * the player whose turn it is for the respective position. This last point'
-   * is subtle.
+   * Returns a mapping from moves to their respective destination positions and
+   * their values ({@link PositionValue} objects contain the positions they
+   * describe). Each position-value is from the perspective of the player whose
+   * turn it is for the respective position; the client can use this
+   * information to determine the value of each move. This point is subtle.
    * <p>
    * For most games in which players alternate turns, the move-value will be
    * the opposite of the destination position-value; for example, if player X
@@ -84,8 +96,8 @@ protocol GamesmanProvider {
    * current player for the destination position, then the value of that
    * position will be a win as well.
    */
-  map<MoveValue> getMoveValues(string game, map<string> variant,
-                               string position, Fields fields);
+  map<PositionValue> getNextPositionValues(string game, map<string> variant,
+                                           string position, Fields fields);
 
   /**
    * Issues a request to solve the specified game variant. The solver may
