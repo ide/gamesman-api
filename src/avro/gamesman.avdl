@@ -48,7 +48,7 @@ protocol GamesmanProvider {
     string position;
     /** The win/lose/tie/draw value of the position. */
     union {null, Value} value;
-    /** The fewest moves required to reach a primitive with this value. */
+    /** The fewest number of moves to win or the greatest to lose or tie. */
     union {null, int} remoteness;
     /** The maximum score by which the current player can win. */
     union {null, float} winBy;
