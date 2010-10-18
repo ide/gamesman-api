@@ -34,8 +34,24 @@ public class GamesmanService {
     @Path("position-value")
     public String getPositionValue(@Context UriInfo info) {
         MultivaluedMap<String, String> boardParameters =
-            getMatrixParametersForSegment("move-value", info);
+            getMatrixParametersForSegment("position-value", info);
         return boardParameters.toString();
+    }
+
+    protected MultivaluedMap<String, String> getVariant() {
+        return getGameSegment().getMatrixParameters();
+    }
+
+    protected String getGame() {
+        return game;
+    }
+
+    protected PathSegment getGameSegment() {
+        return gameSegment;
+    }
+
+    protected GamesmanApi getApi() {
+        return api;
     }
 
     /**
@@ -65,21 +81,5 @@ public class GamesmanService {
         String error = "no path segment for \"%s\" found in URI \"%s\"";
         error = String.format(error, path, info.getPath());
         throw new MissingPathSegmentException(error);
-    }
-
-    protected MultivaluedMap<String, String> getGameParameters() {
-        return getGameSegment().getMatrixParameters();
-    }
-
-    protected String getGame() {
-        return game;
-    }
-
-    protected PathSegment getGameSegment() {
-        return gameSegment;
-    }
-
-    protected GamesmanApi getApi() {
-        return api;
     }
 }

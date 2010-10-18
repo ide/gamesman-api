@@ -1,6 +1,9 @@
 /**
  * The interface for a back end that provides Gamesman functionality for a set
  * of games.
+ *
+ * @author Patrick Horn
+ * @author James Ide
  */
 @namespace("edu.berkeley.gamesman.avro")
 protocol GamesmanProvider {
