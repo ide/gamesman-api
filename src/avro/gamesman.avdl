@@ -51,22 +51,35 @@ protocol GamesmanProvider {
     /** The fewest number of moves to win or the greatest to lose or tie. */
     union {null, int} remoteness;
     /** The maximum score by which the current player can win. */
-    union {null, float} winBy;
+    union {null, int} winBy;
     /** The mex of this position. */
     union {null, int} mex;
   }
 
   /**
-   * Returns a mapping from games to lists of supported variants for each game.
-   * Each variant is represented as a mapping from property names to values.
-   * <p>
-   * To save memory, an implementation may choose only to include variants for
-   * games that are solved. However, since such an implementation may still be
-   * able to compute moves for a game, it is valid to include a mapping from
-   * a game name to an empty list (that is, no variants), to indicate that the
-   * game is supported to a limited degree.
+   * A description of the extent to which a provider has solved a variant of
+   * some game.
    */
-  map<array<map<string>>> getSupportedGames();
+  record VariantSupport {
+    /** The variant of a game that a provider supports. */
+    map<string> variant;
+    /** The fields of position-values supported for the variant. */
+    Fields fields;
+  }
+
+  /**
+   * Returns a mapping from games to lists of supported variants for each game.
+   * Each supported variant is associated with a {@link Fields} instance that
+   * describes the extent to which the given game variant is supported. If a
+   * provider supports playing a game (that is, it computes moves and child
+   * positions) but it has not solved any variants, it should indicate so with
+   * a map entry from the game name to an empty list.
+   * <p>
+   * By including an entry for a game in this mapping (even if the mapping is
+   * to an empty list with no variants), a provider is indicating that it may
+   * support unsolved variants of a game.
+   */
+  map<array<VariantSupport>> getSupportedGames();
 
   /**
    * Returns the position-value of the initial position for the given game
@@ -79,6 +92,10 @@ protocol GamesmanProvider {
    * Returns a mapping from the given positions to their respective values.
    * The specified set of fields is used to hint at which fields of the
    * position-value objects are relevant to the client.
+   * TODO: Determine if the return value type should be array<PositionValue>.
+   * An array would eliminate redundancy in mapping a position to a
+   * PositionValue that contains the position itself. A map is more useful for
+   * quick look-ups, however.
    */
   map<PositionValue> getPositionValues(string game, map<string> variant,
                                        array<string> positions, Fields fields);
